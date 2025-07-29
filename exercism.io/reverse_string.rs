@@ -8,10 +8,6 @@ fn reverse(input: &str) -> String {
         stack.push(elem);
     }
 
-    // while !stack.is_empty() {
-    //     res.push(stack.pop().unwrap());
-    // }
-
     while let Some(element) = stack.pop() {
         res.push(element);
     }
