@@ -51,6 +51,13 @@ impl Queue {
         Some(val)
     }
 
+    pub fn delete_queue(&mut self) {
+        while let Some(node) = self.head.take() {
+            self.head = node.borrow_mut().next.take();
+        }
+        self.tail = None;
+    }
+
     pub fn print_queue(&self) {
         let mut iter = self.head.clone();
 
