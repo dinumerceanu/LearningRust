@@ -1,8 +1,11 @@
 mod merge_sort;
 mod quick_sort;
+
 mod bubble_sort;
 mod insertion_sort;
 mod selection_sort;
+
+mod counting_sort;
 
 fn main() {
     // let a = vec![100, 4, 67, 46, 91, 0, 2];
@@ -25,9 +28,14 @@ fn main() {
 
     // println!("{:?}", d);
 
-    let mut e = vec![8, 2, 4, 9, 3, 6, 1, 5, 7];
-    selection_sort::selection_sort(&mut e);
+    // let mut e = vec![8, 2, 4, 9, 3, 6, 1, 5, 7];
+    // selection_sort::selection_sort(&mut e);
 
-    println!("{:?}", e);
+    // println!("{:?}", e);
+
+    let mut f = vec![5, 2, 1, 4, 0, 1, 3, 2, 2];
+    counting_sort::counting_sort(&mut f);
+
+    println!("{:?}", f);
 
 }
