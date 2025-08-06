@@ -7,6 +7,7 @@ mod selection_sort;
 
 mod counting_sort;
 mod radix_sort;
+mod bucket_sort;
 
 fn main() {
     // let a = vec![100, 4, 67, 46, 91, 0, 2];
@@ -39,9 +40,19 @@ fn main() {
 
     // println!("{:?}", f);
 
-    let mut g = vec![170, 45, 75, 90, 802, 24, 2, 66];
-    radix_sort::radix_sort(&mut g);
+    // let mut g = vec![170, 45, 75, 90, 802, 24, 2, 66];
+    // radix_sort::radix_sort(&mut g);
 
-    println!("{:?}", g);
+    // println!("{:?}", g);
+
+    // let mut h = vec![170, 45, 75, 90, 802, 24, 2, 66];
+    // radix_sort::radix_sort(&mut h);
+
+    // println!("{:?}", h);
+
+    let mut i = vec![0.5, 0.0, 1.0];
+    bucket_sort::bucket_sort(&mut i);
+
+    println!("{:?}", i);
 
 }
