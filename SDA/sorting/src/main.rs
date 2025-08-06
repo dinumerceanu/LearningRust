@@ -6,6 +6,7 @@ mod insertion_sort;
 mod selection_sort;
 
 mod counting_sort;
+mod radix_sort;
 
 fn main() {
     // let a = vec![100, 4, 67, 46, 91, 0, 2];
@@ -33,9 +34,14 @@ fn main() {
 
     // println!("{:?}", e);
 
-    let mut f = vec![5, 2, 1, 4, 0, 1, 3, 2, 2];
-    counting_sort::counting_sort(&mut f);
+    // let mut f = vec![5, 2, 1, 4, 0, 1, 3, 2, 2];
+    // counting_sort::counting_sort(&mut f);
 
-    println!("{:?}", f);
+    // println!("{:?}", f);
+
+    let mut g = vec![170, 45, 75, 90, 802, 24, 2, 66];
+    radix_sort::radix_sort(&mut g);
+
+    println!("{:?}", g);
 
 }
