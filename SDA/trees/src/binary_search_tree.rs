@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-struct Node {
+pub struct Node {
     val: i32,
     left: Option<Box<Node>>,
     right: Option<Box<Node>>,
@@ -148,6 +148,25 @@ impl BSTree {
                         return;
                     }
                 },
+            }
+        }
+    }
+
+    pub fn search(&self, val: i32) -> Option<&Node> {
+        let mut current = &self.root;
+
+        loop {
+            match current {
+                Some(node) => {
+                    if node.val == val {
+                        return Some(node);
+                    } else if val < node.val{
+                        current = &node.left;
+                    } else {
+                        current = &node.right;
+                    }
+                },
+                None => return None,
             }
         }
     }

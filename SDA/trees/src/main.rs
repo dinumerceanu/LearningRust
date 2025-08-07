@@ -18,4 +18,9 @@ fn main() {
     tree.dfs();
     tree.bfs();
     tree.bfs_on_levels();
+    if let Some(_) = tree.search(21) {
+        println!("FOUND!");
+    } else {
+        println!("NOT FOUND!");
+    }
 }
