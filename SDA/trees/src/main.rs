@@ -23,4 +23,7 @@ fn main() {
     } else {
         println!("NOT FOUND!");
     }
+
+    tree.delete(10);
+    tree.bfs_on_levels();
 }

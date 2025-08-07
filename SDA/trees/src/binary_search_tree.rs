@@ -15,6 +15,10 @@ impl Node {
         }
     }
 
+    pub fn print_value(&self) {
+        println!("{}", self.val);
+    }
+
     fn preorder_print(&self) {
         print!("{} ", self.val);
 
@@ -169,6 +173,45 @@ impl BSTree {
                 None => return None,
             }
         }
+    }
+
+    pub fn delete(&mut self, val: i32) {
+        self.root = Self::delete_node(self.root.take(), val);
+    }
+
+    fn delete_node(mut node_opt: Option<Box<Node>>, val: i32) -> Option<Box<Node>> {
+        if let Some(mut node) = node_opt {
+            if val < node.val {
+                node.left = Self::delete_node(node.left.take(), val);
+            } else if val > node.val {
+                node.right = Self::delete_node(node.right.take(), val);
+            } else {
+                if node.left.is_none() {
+                    return node.right.take();
+                } else if node.right.is_none() {
+                    return node.left.take();
+                }
+                if let Some(min_node) = Self::min_value_node(&node.right) {
+                    node.val = min_node;
+                    node.right = Self::delete_node(node.right.take(), min_node);
+                }
+            }
+            Some(node)
+        } else {
+            None
+        }
+    }
+
+    fn min_value_node(node_opt: &Option<Box<Node>>) -> Option<i32> {
+        let mut current = node_opt;
+        while let Some(node) = current {
+            if node.left.is_some() {
+                current = &node.left;
+            } else {
+                return Some(node.val);
+            }
+        }
+        None
     }
 
     pub fn preorder(&self) {
