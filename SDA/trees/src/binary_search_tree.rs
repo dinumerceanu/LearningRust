@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 struct Node {
     val: i32,
     left: Option<Box<Node>>,
@@ -48,6 +50,63 @@ impl Node {
         }
 
         print!("{} ", self.val);
+    }
+
+    fn dfs_print(&self) {
+        print!("{} ", self.val);
+
+        if let Some(node) = &self.left {
+            node.dfs_print();
+        }
+
+        if let Some(node) = &self.right {
+            node.dfs_print();
+        }
+    }
+
+    fn bfs_print(&self) {
+        let mut queue = VecDeque::new();
+
+        queue.push_back(self);
+
+        while !queue.is_empty() {
+            if let Some(current) = queue.pop_front() {
+                print!("{} ", current.val);
+                if let Some(kid) = &current.left {
+                    queue.push_back(kid);
+                }
+                if let Some(kid) = &current.right {
+                    queue.push_back(kid);
+                }
+            }
+        }
+    }
+
+    fn bfs_print_on_levels(&self) {
+        let mut queue = VecDeque::new();
+        let mut n = 1;
+        let mut m = 0;
+
+        queue.push_back(self);
+
+        while !queue.is_empty() {
+            m = 0;
+            for i in 0..n {
+                if let Some(current) = queue.pop_front() {
+                    print!("{} ", current.val);
+                    if let Some(kid) = &current.left {
+                        queue.push_back(kid);
+                        m += 1;
+                    }
+                    if let Some(kid) = &current.right {
+                        queue.push_back(kid);
+                        m += 1;
+                    }
+                }
+            }
+            n = m;
+            println!();
+        }
     }
 }
 
@@ -114,6 +173,33 @@ impl BSTree {
     pub fn postorder(&self) {
         if let Some(node) = &self.root {
             node.postorder_print();
+            println!();
+        } else {
+            println!("Empty tree");
+        }
+    }
+
+    pub fn dfs(&self) {
+        if let Some(node) = &self.root {
+            node.dfs_print();
+            println!();
+        } else {
+            println!("Empty tree");
+        }
+    }
+
+    pub fn bfs(&self) {
+        if let Some(node) = &self.root {
+            node.bfs_print();
+            println!();
+        } else {
+            println!("Empty tree");
+        }
+    }
+
+    pub fn bfs_on_levels(&self) {
+        if let Some(node) = &self.root {
+            node.bfs_print_on_levels();
             println!();
         } else {
             println!("Empty tree");

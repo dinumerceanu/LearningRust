@@ -15,4 +15,7 @@ fn main() {
     tree.preorder();
     tree.inorder();
     tree.postorder();
+    tree.dfs();
+    tree.bfs();
+    tree.bfs_on_levels();
 }
