@@ -1,7 +1,8 @@
-use std::{cell::{Ref, RefCell}, collections::VecDeque, rc::Rc};
+use std::{cell::{Ref, RefCell}, cmp::max, collections::VecDeque, rc::Rc};
 
 pub struct Node {
     val: i32,
+    height: i32,
     left: Option<Rc<RefCell<Node>>>,
     right: Option<Rc<RefCell<Node>>>,
 }
@@ -10,6 +11,7 @@ impl Node {
     fn new(val: i32) -> Self {
         Node {
             val,
+            height: 1,
             left: None,
             right: None,
         }
@@ -91,58 +93,85 @@ impl AVLTree {
         
     }
 
-
-
     pub fn insert_recursive_wrapper(&mut self, val: i32) {
-        let new_root = Self::insert_recursive(self.root.clone(), val);
-        self.root = new_root;
+        self.root = self.insert_recursive(self.root.clone(), val);
     }
 
-    fn insert_recursive(node_opt: Option<Rc<RefCell<Node>>>, val: i32) -> Option<Rc<RefCell<Node>>> {
+    fn insert_recursive(&mut self, node_opt: Option<Rc<RefCell<Node>>>, val: i32) -> Option<Rc<RefCell<Node>>> {
         match node_opt {
             None => Some(Rc::new(RefCell::new(Node::new(val)))),
             
             Some(node) => {
-                let mut borrowed_node = node.borrow_mut();
-                
-                if val < borrowed_node.val {
-                    let left_subtree = borrowed_node.left.clone();
-                    let new_left_subtree = Self::insert_recursive(left_subtree, val);
-                    borrowed_node.left = new_left_subtree;
-                } else if val > borrowed_node.val {
-                    let right_subtree = borrowed_node.right.clone();
-                    let new_right_subtree = Self::insert_recursive(right_subtree, val);
-                    borrowed_node.right = new_right_subtree;
+                {
+                    let mut borrowed_node = node.borrow_mut();
+                    if val < borrowed_node.val {
+                        let new_left = self.insert_recursive(borrowed_node.left.clone(), val);
+                        borrowed_node.left = new_left;
+                    } else if val > borrowed_node.val {
+                        let new_right = self.insert_recursive(borrowed_node.right.clone(), val);
+                        borrowed_node.right = new_right;
+                    } else {
+                        drop(borrowed_node);
+                        return Some(node);
+                    }
                 }
 
-                Some(node.clone())
+                self.update_height(&node);
+
+                let balance = self.balance_factor(&node);
+
+                if balance > 1 {
+                    let left_child = node.borrow().left.as_ref().unwrap().clone();
+                    if val < left_child.borrow().val {
+                        return Some(self.LL(node));
+                    } 
+                    else {
+                        return Some(self.LR(node));
+                    }
+                }
+
+                if balance < -1 {
+                    let right_child = node.borrow().right.as_ref().unwrap().clone();
+                    if val > right_child.borrow().val {
+                        return Some(self.RR(node));
+                    } 
+                    else {
+                        return Some(self.RL(node));
+                    }
+                }
+
+                Some(node)
             }
         }
     }
 
-    pub fn LL(&mut self, A: Rc<RefCell<Node>>) -> Rc<RefCell<Node>> {
+    fn LL(&mut self, A: Rc<RefCell<Node>>) -> Rc<RefCell<Node>> {
         let B = A.borrow().left.as_ref().unwrap().clone();
         let B_R = B.borrow().right.clone();
 
         A.borrow_mut().left = B_R;
+        B.borrow_mut().right = Some(A.clone());
 
-        B.borrow_mut().right = Some(A);
+        self.update_height(&A);
+        self.update_height(&B);
         
         B
     }
 
-    pub fn RR(&mut self, A: Rc<RefCell<Node>>) -> Rc<RefCell<Node>> {
+    fn RR(&mut self, A: Rc<RefCell<Node>>) -> Rc<RefCell<Node>> {
         let B = A.borrow().right.as_ref().unwrap().clone();
         let B_L = B.borrow().left.clone();
 
         A.borrow_mut().right = B_L;
+        B.borrow_mut().left = Some(A.clone());
 
-        B.borrow_mut().left = Some(A);
+        self.update_height(&A);
+        self.update_height(&B);
         
         B
     }
 
-    pub fn LR(&mut self, A: Rc<RefCell<Node>>) -> Rc<RefCell<Node>> {
+    fn LR(&mut self, A: Rc<RefCell<Node>>) -> Rc<RefCell<Node>> {
         let B = A.borrow().left.as_ref().unwrap().clone();
         
         A.borrow_mut().left = Some(self.RR(B));
@@ -150,11 +179,26 @@ impl AVLTree {
         self.LL(A)
     }
 
-    pub fn RL(&mut self, A: Rc<RefCell<Node>>) -> Rc<RefCell<Node>> {
+    fn RL(&mut self, A: Rc<RefCell<Node>>) -> Rc<RefCell<Node>> {
         let B = A.borrow().right.as_ref().unwrap().clone();
 
         A.borrow_mut().right = Some(self.LL(B));
 
         self.RR(A)
+    }
+
+    fn height(node: &Option<Rc<RefCell<Node>>>) -> i32 {
+        node.as_ref().map_or(0, |n| n.borrow().height)
+    }
+
+    fn update_height(&mut self, node: &Rc<RefCell<Node>>) {
+        let left_height = Self::height(&node.borrow().left);
+        let right_height = Self::height(&node.borrow().right);
+
+        node.borrow_mut().height = max(left_height, right_height) + 1;
+    }
+
+    fn balance_factor(&self, node: &Rc<RefCell<Node>>) -> i32 {
+        Self::height(&node.borrow().left) - Self::height(&node.borrow().right)
     }
 }

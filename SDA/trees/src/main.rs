@@ -38,28 +38,12 @@ fn main() {
     // tree_avl.bfs_print_on_levels();
 
     tree_avl.insert_recursive_wrapper(20);
-    tree_avl.insert_recursive_wrapper(1);
+    tree_avl.insert_recursive_wrapper(10);
     tree_avl.insert_recursive_wrapper(25);
-    tree_avl.insert_recursive_wrapper(22);
-    tree_avl.insert_recursive_wrapper(26);
-    tree_avl.insert_recursive_wrapper(21);
-    tree_avl.insert_recursive_wrapper(23);
+    tree_avl.insert_recursive_wrapper(24);
+    tree_avl.insert_recursive_wrapper(30);
+    tree_avl.insert_recursive_wrapper(29);
+    tree_avl.insert_recursive_wrapper(31);
     tree_avl.bfs_print_on_levels();
     println!();
-
-    // let x = tree_avl.root.clone().unwrap();
-    // tree_avl.root = Some(tree_avl.LL(x));
-    // tree_avl.bfs_print_on_levels();
-    
-    // let y = tree_avl.root.clone().unwrap();
-    // tree_avl.root = Some(tree_avl.RR(y));
-    // tree_avl.bfs_print_on_levels();
-
-    // let z = tree_avl.root.clone().unwrap();
-    // tree_avl.root = Some(tree_avl.LR(z));
-    // tree_avl.bfs_print_on_levels();
-
-    let p = tree_avl.root.clone().unwrap();
-    tree_avl.root = Some(tree_avl.RL(p));
-    tree_avl.bfs_print_on_levels();
 }
