@@ -46,4 +46,10 @@ fn main() {
     tree_avl.insert_recursive_wrapper(31);
     tree_avl.bfs_print_on_levels();
     println!();
+
+    tree_avl.delete(30);
+    tree_avl.delete(29);
+    tree_avl.delete(31);
+    tree_avl.bfs_print_on_levels();
+    println!();
 }

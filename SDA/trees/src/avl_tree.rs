@@ -1,4 +1,4 @@
-use std::{cell::{Ref, RefCell}, cmp::max, collections::VecDeque, rc::Rc};
+use std::{cell::{Ref, RefCell}, cmp::max, collections::VecDeque, io::Cursor, rc::Rc};
 
 pub struct Node {
     val: i32,
@@ -144,6 +144,80 @@ impl AVLTree {
             }
         }
     }
+
+    pub fn delete(&mut self, val: i32) {
+        self.root = self.delete_node(self.root.clone(), val);
+    }
+
+    fn delete_node(&mut self, node_opt: Option<Rc<RefCell<Node>>>, val: i32) -> Option<Rc<RefCell<Node>>> {
+        match node_opt {
+            None => None,
+
+            Some(node) => {
+                {
+                    let mut borrowed_node = node.borrow_mut();
+                    if val < borrowed_node.val {
+                        let new_left = self.delete_node(borrowed_node.left.clone(), val);
+                        borrowed_node.left = new_left;
+                    } else if val > borrowed_node.val {
+                        let new_right = self.delete_node(borrowed_node.right.clone(), val);
+                        borrowed_node.right = new_right;
+                    } else {
+                        if borrowed_node.left.is_none() {
+                            return borrowed_node.right.clone();
+                        } else if borrowed_node.right.is_none() {
+                            return borrowed_node.left.clone();
+                        }
+                        if let Some(smallest_bigger) = Self::find_smallest_node(borrowed_node.right.clone()) {
+                            borrowed_node.val = smallest_bigger;
+                            let new_right = self.delete_node(borrowed_node.right.clone(), smallest_bigger);
+                            borrowed_node.right = new_right;
+                        }
+                    }
+                }
+
+                self.update_height(&node);
+
+                let balance = self.balance_factor(&node);
+
+                if balance > 1 {
+                    let left_child = node.borrow().left.as_ref().unwrap().clone();
+                    if self.balance_factor(&left_child) >= 0 {
+                        return Some(self.LL(node));
+                    } 
+                    else {
+                        return Some(self.LR(node));
+                    }
+                }
+
+                if balance < -1 {
+                    let right_child = node.borrow().right.as_ref().unwrap().clone();
+                    if self.balance_factor(&right_child) <=0 {
+                        return Some(self.RR(node));
+                    } 
+                    else {
+                        return Some(self.RL(node));
+                    }
+                }
+
+                Some(node)
+            },
+        }
+    }
+
+    fn find_smallest_node(node_opt: Option<Rc<RefCell<Node>>>) -> Option<i32> {
+        let mut current = node_opt.clone();
+        
+        while let Some(node) = current {
+            if node.borrow().left.is_some() {
+                current = node.borrow().left.clone();
+            } else {
+                return Some(node.borrow().val);
+            }
+        }
+
+        None
+    } 
 
     fn LL(&mut self, A: Rc<RefCell<Node>>) -> Rc<RefCell<Node>> {
         let B = A.borrow().left.as_ref().unwrap().clone();
