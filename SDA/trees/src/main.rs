@@ -52,4 +52,9 @@ fn main() {
     tree_avl.delete(31);
     tree_avl.bfs_print_on_levels();
     println!();
+
+    println!("{}", tree_avl.search(10));
+    println!("{}", tree_avl.search(24));
+    println!("{}", tree_avl.search(30));
+    println!("{}", tree_avl.search(1));
 }

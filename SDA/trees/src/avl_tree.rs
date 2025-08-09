@@ -1,3 +1,4 @@
+use core::borrow;
 use std::{cell::{Ref, RefCell}, cmp::max, collections::VecDeque, io::Cursor, rc::Rc};
 
 pub struct Node {
@@ -201,6 +202,27 @@ impl AVLTree {
                 }
 
                 Some(node)
+            },
+        }
+    }
+
+    pub fn search(&self, val: i32) -> bool {
+        Self::search_recursive(self.root.clone(), val)
+    }
+    
+    fn search_recursive(node_opt: Option<Rc<RefCell<Node>>>, val: i32) -> bool {
+        match node_opt {
+            None => false,
+
+            Some(node) => {
+                let mut borrowed_node = node.borrow_mut();
+                if val == borrowed_node.val {
+                    return true;
+                } else if val < borrowed_node.val {
+                    Self::search_recursive(borrowed_node.left.clone(), val)
+                } else {
+                    Self::search_recursive(borrowed_node.right.clone(), val)
+                }
             },
         }
     }
