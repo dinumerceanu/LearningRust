@@ -1,5 +1,6 @@
 mod merge_sort;
 mod quick_sort;
+mod heap_sort;
 
 mod bubble_sort;
 mod insertion_sort;
@@ -50,9 +51,14 @@ fn main() {
 
     // println!("{:?}", h);
 
-    let mut i = vec![0.5, 0.0, 1.0];
-    bucket_sort::bucket_sort(&mut i);
+    // let mut i = vec![0.5, 0.0, 1.0];
+    // bucket_sort::bucket_sort(&mut i);
 
-    println!("{:?}", i);
+    // println!("{:?}", i);
+
+    let mut j = vec![2, 8, 5, 3, 9, 1];
+    heap_sort::heap_sort(&mut j);
+
+    println!("{:?}", j);
 
 }
