@@ -62,17 +62,19 @@ fn main() {
     // println!("{}", tree_avl.search(1));
 
     let mut rb_tree = red_black_tree::RBTree::new();
-    rb_tree.insert(10);
-    rb_tree.insert(5);
+    rb_tree.insert(13);
+    rb_tree.insert(8);
+    rb_tree.insert(17);
+    rb_tree.insert(1);
+    rb_tree.insert(11);
     rb_tree.insert(15);
-    rb_tree.insert(3);
-    rb_tree.insert(2);
-    rb_tree.insert(4);
-    rb_tree.insert(20);
-    rb_tree.insert(16);
+    rb_tree.insert(25);
+    rb_tree.insert(6);
+    rb_tree.insert(22);
     rb_tree.bfs_print_on_levels();
-
-    // rb_tree.test_rotations();
-    // rb_tree.bfs_print_on_levels();
-
+    
+    println!();
+    println!();
+    rb_tree.delete(1);
+    rb_tree.bfs_print_on_levels();
 }

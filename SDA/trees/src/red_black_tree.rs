@@ -1,4 +1,4 @@
-use std::{cell::{Ref, RefCell}, collections::VecDeque, rc::Rc};
+use std::{cell::RefCell, char::REPLACEMENT_CHARACTER, collections::VecDeque, rc::Rc};
 
 use colored::Colorize;
 
@@ -6,8 +6,8 @@ pub struct Node {
     val: i32,
     red: bool,
     parent: Option<Rc<RefCell<Node>>>, 
-    left: Option<Rc<RefCell<Node>>>,
-    right: Option<Rc<RefCell<Node>>>,
+    pub left: Option<Rc<RefCell<Node>>>,
+    pub right: Option<Rc<RefCell<Node>>>,
 }
 
 impl Node {
@@ -23,7 +23,7 @@ impl Node {
 }
 
 pub struct RBTree {
-    root: Option<Rc<RefCell<Node>>>,
+    pub root: Option<Rc<RefCell<Node>>>,
 }
 
 impl RBTree {
@@ -68,13 +68,6 @@ impl RBTree {
             println!();
         }
     }
-
-    // pub fn test_rotations(&mut self) {
-    //     let node_to_rotate = self.root.as_ref().unwrap().borrow().right.clone();
-    //     if let Some(node) = node_to_rotate {
-    //         self.RR(node);
-    //     }
-    // }
 
     fn LL(&mut self, A: Rc<RefCell<Node>>) {
         let A_parent_opt = A.borrow().parent.clone();
@@ -286,5 +279,260 @@ impl RBTree {
                 }
             }
         }
+    }
+
+    fn rebalance_delete(&mut self, node_to_delete: Rc<RefCell<Node>>) {
+        let mut parent_opt = node_to_delete.clone().borrow().parent.clone();
+        if parent_opt.is_none() {
+            node_to_delete.borrow_mut().red = false;
+            return;
+        }
+
+        let node_is_left_child = parent_opt.clone().unwrap().borrow().right.as_ref().map_or(true, |right| !Rc::ptr_eq(right, &node_to_delete));
+        
+        let mut parent = parent_opt.clone().unwrap();
+        let mut sibling = if node_is_left_child {
+            parent.borrow().right.clone()
+        } else {
+            parent.borrow().left.clone()
+        };
+
+        let mut sibling_exists = false;
+        let mut sibling_is_red = false;
+        let mut sibling_left_exists = false;
+        let mut sibling_left_is_red = false;
+        let mut sibling_right_exists = false;
+        let mut sibling_right_is_red = false;
+
+        if let Some(sibling_rc) = sibling.clone() {
+            sibling_exists = true;
+            sibling_is_red = (sibling_rc.borrow().red == true);
+            if let Some(_) = sibling_rc.borrow().left.clone() {
+                sibling_left_exists = true;
+                sibling_left_is_red = (sibling_rc.borrow().left.clone().unwrap().borrow().red == true);
+            } else {
+                sibling_left_exists = false;
+                sibling_left_is_red = false;
+            }
+            if let Some(_) = sibling_rc.borrow().right.clone() {
+                sibling_right_exists = true;
+                sibling_right_is_red = (sibling_rc.borrow().right.clone().unwrap().borrow().red == true);
+            } else {
+                sibling_right_is_red = false;
+                sibling_right_exists = false;
+            }
+        } else {
+            sibling_exists = false;
+            sibling_is_red = false;
+            sibling_left_is_red = false;
+            sibling_right_is_red = false;
+        }
+
+        if node_is_left_child == true {
+            if sibling_exists && sibling_is_red {
+                sibling.clone().unwrap().borrow_mut().red = false;
+                parent.borrow_mut().red = true;
+                self.RR(parent.clone());
+            }
+
+            if !sibling_exists {
+                // nu exista sibling
+                if parent.borrow().red == true {
+                    parent.borrow_mut().red = false;
+                    return;
+                } else {
+                    self.rebalance_delete(parent.clone());
+                }
+            } else {
+                // exista sibling
+                if !sibling_is_red && !sibling_left_is_red && !sibling_right_is_red {
+                    sibling.clone().unwrap().borrow_mut().red = true;
+                    self.rebalance_delete(parent.clone());
+                } else {
+                    if !sibling_is_red && sibling_left_is_red && !sibling_right_is_red {
+                        sibling.clone().unwrap().borrow_mut().left.clone().unwrap().borrow_mut().red = false;
+                        sibling.clone().unwrap().borrow_mut().red = true;
+                        self.LL(sibling.clone().unwrap());
+                        self.rebalance_delete(node_to_delete);
+
+                    } else if sibling_right_exists && sibling_right_is_red {
+                        sibling.clone().unwrap().borrow_mut().red = parent.borrow().red;
+                        parent.borrow_mut().red = false;
+                        sibling.clone().unwrap().borrow_mut().right.clone().unwrap().borrow_mut().red = false;
+                        self.RR(parent.clone());
+                    }
+                }
+
+            }
+        } else {
+            if sibling_exists && sibling_is_red {
+                sibling.clone().unwrap().borrow_mut().red = false;
+                parent.borrow_mut().red = true;
+                self.LL(parent.clone());
+            }
+
+            if !sibling_exists {
+                // nu exista sibling
+                if parent.borrow().red == true {
+                    parent.borrow_mut().red = false;
+                    return;
+                } else {
+                    self.rebalance_delete(parent.clone());
+                }
+            } else {
+                // exista sibling
+                if !sibling_is_red && !sibling_left_is_red && !sibling_right_is_red {
+                    sibling.clone().unwrap().borrow_mut().red = true;
+                    self.rebalance_delete(parent.clone());
+                } else {
+                    if !sibling_is_red && !sibling_left_is_red && sibling_right_is_red {
+                        sibling.clone().unwrap().borrow_mut().right.clone().unwrap().borrow_mut().red = false;
+                        sibling.clone().unwrap().borrow_mut().red = true;
+                        self.RR(sibling.clone().unwrap());
+                    } else if sibling_right_exists && sibling_right_is_red {
+                        sibling.clone().unwrap().borrow_mut().red = parent.borrow().red;
+                        parent.borrow_mut().red = false;
+                        sibling.clone().unwrap().borrow_mut().left.clone().unwrap().borrow_mut().red = false;
+                        self.LL(parent.clone());
+                    }
+                }
+
+            }
+        }
+        // ensore final node is black
+    }
+
+    pub fn delete(&mut self, val: i32) {
+        let mut node_to_delete: Rc<RefCell<Node>>;
+        let node_is_left_child: bool;
+
+        if let Some(x) = Self::search_recursive(self.root.clone(), val) {
+            node_to_delete = x;
+        } else {
+            return;
+        }
+
+        let parent_opt = node_to_delete.clone().borrow().parent.clone();
+        
+        match Self::nr_of_kids(Some(node_to_delete.clone())) {
+            0 => {
+                let borrowed_node = node_to_delete.borrow_mut();
+                
+                if parent_opt.is_none() {
+                    self.root = None;
+                } else {
+                    let node_is_left_child = parent_opt.clone().unwrap().borrow().left.as_ref().map_or(false, |left| Rc::ptr_eq(&left, &node_to_delete.clone()));
+                    if node_is_left_child {
+                        parent_opt.clone().unwrap().borrow_mut().left = None;
+                    } else {
+                        parent_opt.clone().unwrap().borrow_mut().right = None;
+                    }
+                }
+                
+                if !borrowed_node.red {
+                    drop(parent_opt);
+                    drop(borrowed_node);
+                    self.rebalance_delete(node_to_delete.clone());
+                }
+            },
+            1 => {
+                let child_is_left = node_to_delete.clone().borrow().left.is_some();
+
+                let mut child = if child_is_left {
+                    node_to_delete.clone().borrow().left.clone().unwrap()
+                } else {
+                    node_to_delete.clone().borrow().right.clone().unwrap()
+                };
+
+                let node_is_left_child = parent_opt.clone().unwrap().borrow().left.clone().map_or(false, |left| Rc::ptr_eq(&left, &node_to_delete.clone()));
+                if node_is_left_child {
+                    parent_opt.clone().unwrap().borrow_mut().left = Some(child.clone());
+                    node_to_delete.borrow_mut().left = None;
+                } else {
+                    parent_opt.clone().unwrap().borrow_mut().right = Some(child.clone());
+                    node_to_delete.borrow_mut().right = None;
+                }
+                child.borrow_mut().parent = parent_opt;
+                child.borrow_mut().red = false;                
+            },
+            2 => {
+                let middle_man = node_to_delete.clone().borrow().right.clone();
+                let mut smallest_bigger = Self::find_smallest_node(middle_man).unwrap();
+                let parent_of_new_node = smallest_bigger.clone().borrow().parent.clone();
+                let new_node_is_left_child = parent_of_new_node.clone().unwrap().borrow().left.clone().map_or(false, |left| Rc::ptr_eq(&left, &smallest_bigger.clone()));
+                node_to_delete.clone().borrow_mut().val = smallest_bigger.clone().borrow().val;
+                if new_node_is_left_child {
+                    parent_of_new_node.unwrap().borrow_mut().left = None;
+                } else {
+                    parent_of_new_node.unwrap().borrow_mut().right = None;
+                }
+
+                if !node_to_delete.borrow().red {
+                    self.rebalance_delete(node_to_delete.clone());
+                }
+            }
+            _ => {
+                return;
+            }
+        }
+    }
+
+    pub fn search(&self, val: i32) -> Option<Rc<RefCell<Node>>> {
+        if let Some(found) = Self::search_recursive(self.root.clone(), val) {
+            println!("FOUND!");
+            Some(found)
+        } else {
+            println!("NOT FOUND!");
+            None
+        }
+    }
+
+    fn search_recursive(start: Option<Rc<RefCell<Node>>>, val: i32) -> Option<Rc<RefCell<Node>>> {
+        if let Some(current) = start {
+            let mut borrowed_current = current.borrow();
+            if val == borrowed_current.val {
+                drop(borrowed_current);
+                return Some(current);
+            } else if val < borrowed_current.val {
+                let next_node = borrowed_current.left.clone();
+                drop(borrowed_current);
+                Self::search_recursive(next_node, val)
+            } else {
+                let next_node = borrowed_current.right.clone();
+                drop(borrowed_current);
+                Self::search_recursive(next_node, val)
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn nr_of_kids(node: Option<Rc<RefCell<Node>>>) -> i32 {
+        if node.is_some() {
+            let mut kids = 0;
+            if let Some(_) = node.as_ref().unwrap().borrow().left {
+                kids += 1;
+            }
+            if let Some(_) = node.unwrap().borrow().right {
+                kids += 1;
+            }
+            kids
+        } else {
+            -1
+        }
+    } 
+
+    fn find_smallest_node(node_opt: Option<Rc<RefCell<Node>>>) -> Option<Rc<RefCell<Node>>> {
+        let mut current = node_opt.clone();
+        
+        while let Some(node) = current {
+            if node.borrow().left.is_some() {
+                current = node.borrow().left.clone();
+            } else {
+                return Some(node);
+            }
+        }
+
+        None
     }
 }
