@@ -25,10 +25,10 @@ impl DSU {
 
         if root_i != root_j {
             if self.size[root_i] < self.size[root_j] {
-                self.parent[i] = root_j;
+                self.parent[root_i] = root_j;
                 self.size[root_j] += self.size[root_i];
             } else {
-                self.parent[j] = root_i;
+                self.parent[root_j] = root_i;
                 self.size[root_i] += self.size[root_j];
             }
             true
