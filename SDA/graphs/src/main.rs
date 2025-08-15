@@ -119,6 +119,7 @@ fn main() -> io::Result<()> {
     dfs_dg(&graph, 0);
     println!("{:?}", topsort_dfs(&graph));
     println!("{:?}", topsort_khan_bfs(&graph));
+    println!("{:?}", tarjan_scc(&graph));
 
     Ok(())
 }

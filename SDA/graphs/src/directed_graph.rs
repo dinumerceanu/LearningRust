@@ -107,3 +107,70 @@ pub fn topsort_khan_bfs(graph: &[Vec<Edge>]) -> Option<Vec<usize>> {
 
     Some(res)
 }
+
+fn dfs_tarjan(
+    graph: &[Vec<Edge>],
+    at: usize,
+    stack: &mut Vec<usize>,
+    on_stack: &mut Vec<bool>,
+    ids: &mut Vec<isize>,
+    low: &mut Vec<usize>,
+    id: &mut usize,
+    scc_count: &mut usize,
+) {
+    stack.push(at);
+    on_stack[at] = true;
+    ids[at] = *id as isize;
+    low[at] = *id;
+    *id += 1;
+
+    for edge in &graph[at] {
+        let to = edge.v;
+        if ids[to] == -1 {
+            dfs_tarjan(graph, to, stack, on_stack, ids, low, id, scc_count);
+            low[at] = low[at].min(low[to]);
+        } else if on_stack[to] {
+            low[at] = low[at].min(ids[to] as usize);
+        }
+    }
+
+    if low[at] == ids[at] as usize {
+        loop {
+            let node = stack.pop().unwrap();
+            on_stack[node] = false;
+            low[node] = ids[at] as usize;
+            if node == at {
+                break;
+            }
+        }
+        *scc_count += 1;
+    }
+}
+
+pub fn tarjan_scc(graph: &[Vec<Edge>]) -> usize {
+    let n = graph.len();
+    let mut id = 0;
+    let mut scc_count = 0;
+    let mut ids = vec![-1; n];
+    let mut low = vec![0; n];
+    let mut on_stack = vec![false; n];
+    let mut stack = Vec::new();
+
+    for i in 0..n {
+        if ids[i] == -1 {
+            dfs_tarjan(
+                graph,
+                i,
+                &mut stack,
+                &mut on_stack,
+                &mut ids,
+                &mut low,
+                &mut id,
+                &mut scc_count,
+            );
+        }
+    }
+    
+    scc_count
+}
+
