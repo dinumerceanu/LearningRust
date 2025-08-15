@@ -3,6 +3,8 @@ use std::io::{self, BufRead, BufReader};
 
 mod undirected_graph;
 use undirected_graph::UG;
+mod directed_graph;
+use directed_graph::*;
 mod dsu;
 use dsu::DSU;
 mod edge;
@@ -45,6 +47,43 @@ mod prim;
 
 // }
 
+// fn main() -> io::Result<()> {
+//     let file = File::open("src/file.in")?;
+//     let mut reader = BufReader::new(file);
+
+//     let mut first_line = String::new();
+//     reader.read_line(&mut first_line)?;
+//     let input: Vec<i32> = first_line
+//         .trim()
+//         .split_whitespace()
+//         .map(|s| s.parse::<i32>().expect("Nu e numar"))
+//         .collect();
+
+//     let n = input[0] as usize;
+//     let m = input[1] as usize;
+
+//     let mut graph: Vec<Vec<Edge>> = vec![Vec::new(); n];
+
+//     for _ in 0..m {
+//         let mut line = String::new();
+//         reader.read_line(&mut line)?;
+//         let edge_arr: Vec<i32> = line
+//             .trim()
+//             .split_whitespace()
+//             .map(|s| s.parse::<i32>().expect("Nu e numar"))
+//             .collect();
+
+//         let new_edge1 = Edge::new(edge_arr[0] as usize, edge_arr[1] as usize, edge_arr[2]);
+//         let new_edge2 = Edge::new(edge_arr[1] as usize, edge_arr[0] as usize, edge_arr[2]);
+
+//         graph[edge_arr[0] as usize].push(new_edge1);
+//         graph[edge_arr[1] as usize].push(new_edge2);
+//     }
+
+//     println!("{:?}", prim::prim(&graph, n, m));
+
+//     Ok(())
+// }
 fn main() -> io::Result<()> {
     let file = File::open("src/file.in")?;
     let mut reader = BufReader::new(file);
@@ -71,14 +110,15 @@ fn main() -> io::Result<()> {
             .map(|s| s.parse::<i32>().expect("Nu e numar"))
             .collect();
 
-        let new_edge1 = Edge::new(edge_arr[0] as usize, edge_arr[1] as usize, edge_arr[2]);
-        let new_edge2 = Edge::new(edge_arr[1] as usize, edge_arr[0] as usize, edge_arr[2]);
+        let new_edge = Edge::new(edge_arr[0] as usize, edge_arr[1] as usize, edge_arr[2]);
 
-        graph[edge_arr[0] as usize].push(new_edge1);
-        graph[edge_arr[1] as usize].push(new_edge2);
+        graph[edge_arr[0] as usize].push(new_edge);
     }
 
-    println!("{:?}", prim::prim(&graph, n, m));
+    bfs_dg(&graph, 0);
+    dfs_dg(&graph, 0);
+    println!("{:?}", topsort_dfs(&graph));
+    println!("{:?}", topsort_khan_bfs(&graph));
 
     Ok(())
 }
