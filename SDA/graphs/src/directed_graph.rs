@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::{cmp::Reverse, collections::{BinaryHeap, HashSet, VecDeque}, usize, vec};
 
 use crate::edge::Edge;
 
@@ -170,7 +170,34 @@ pub fn tarjan_scc(graph: &[Vec<Edge>]) -> usize {
             );
         }
     }
-    
+
     scc_count
 }
 
+pub fn dijkstra(graph: &[Vec<Edge>], start: usize) -> (Vec<usize>, Vec<usize>) {
+    let n = graph.len();
+    let mut dist= vec![usize::MAX; n];
+    let mut visited = vec![false; n];
+    let mut parents: Vec<usize> = (0..n).collect();
+    dist[start] = 0;
+    let mut priority_queue: BinaryHeap<Reverse<(usize, usize)>> = BinaryHeap::new();
+    priority_queue.push(Reverse((0, start)));
+
+    while let Some(Reverse((distance, index))) = priority_queue.pop() {
+        if visited[index] {
+            continue;
+        }
+
+        visited[index] = true;
+
+        for edge in &graph[index] {
+            if (distance + edge.weight as usize) < dist[edge.v] {
+                dist[edge.v] = distance + edge.weight as usize;
+                priority_queue.push(Reverse((dist[edge.v], edge.v)));
+                parents[edge.v] = index;
+            }
+        }
+    }
+
+    (dist, parents)
+}
