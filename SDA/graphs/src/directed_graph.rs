@@ -201,3 +201,37 @@ pub fn dijkstra(graph: &[Vec<Edge>], start: usize) -> (Vec<usize>, Vec<usize>) {
 
     (dist, parents)
 }
+
+pub fn bellman_ford(graph: &[Vec<Edge>], start: usize) -> Option<(Vec<isize>, Vec<usize>)> {
+    let n = graph.len();
+    let mut dist = vec![isize::MAX; n];
+    let mut parents: Vec<usize> = (0..n).collect();
+    dist[start] = 0;
+
+    for _ in 0..n - 1 {
+        for i in 0..n {
+            for edge in &graph[i] {
+                if dist[i] != isize::MAX {
+                    let new_dist = dist[i].saturating_add(edge.weight as isize);
+                    if new_dist < dist[edge.v] {
+                        dist[edge.v] = new_dist;
+                        parents[edge.v] = i;
+                    }
+                }
+            }
+        }
+    }
+
+    for i in 0..n {
+        for edge in &graph[i] {
+            if dist[i] != isize::MAX {
+                let new_dist = dist[i].saturating_add(edge.weight as isize);
+                if new_dist < dist[edge.v] {
+                    return None;
+                }
+            }
+        }
+    }
+
+    Some((dist, parents))
+}

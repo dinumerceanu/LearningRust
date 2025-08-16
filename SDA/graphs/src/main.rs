@@ -115,12 +115,13 @@ fn main() -> io::Result<()> {
         graph[edge_arr[0] as usize].push(new_edge);
     }
 
-    bfs_dg(&graph, 0);
-    dfs_dg(&graph, 0);
-    println!("{:?}", topsort_dfs(&graph));
-    println!("{:?}", topsort_khan_bfs(&graph));
-    println!("{:?}", tarjan_scc(&graph));
-    println!("{:?}", dijkstra(&graph, 0));
+    // bfs_dg(&graph, 0);
+    // dfs_dg(&graph, 0);
+    // println!("{:?}", topsort_dfs(&graph));
+    // println!("{:?}", topsort_khan_bfs(&graph));
+    // println!("{:?}", tarjan_scc(&graph));
+    // println!("{:?}", dijkstra(&graph, 0));
+    println!("{:?}", bellman_ford(&graph, 0));
 
     Ok(())
 }
