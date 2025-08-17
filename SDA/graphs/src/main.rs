@@ -121,7 +121,8 @@ fn main() -> io::Result<()> {
     // println!("{:?}", topsort_khan_bfs(&graph));
     // println!("{:?}", tarjan_scc(&graph));
     // println!("{:?}", dijkstra(&graph, 0));
-    println!("{:?}", bellman_ford(&graph, 0));
+    // println!("{:?}", bellman_ford(&graph, 0));
+    println!("{:?}", roy_floyd_warshall(&graph));
 
     Ok(())
 }

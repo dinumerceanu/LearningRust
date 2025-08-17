@@ -1,4 +1,4 @@
-use std::{cmp::Reverse, collections::{BinaryHeap, HashSet, VecDeque}, usize, vec};
+use std::{cmp::Reverse, collections::{BinaryHeap, HashSet, VecDeque}, i32, usize, vec};
 
 use crate::edge::Edge;
 
@@ -234,4 +234,41 @@ pub fn bellman_ford(graph: &[Vec<Edge>], start: usize) -> Option<(Vec<isize>, Ve
     }
 
     Some((dist, parents))
+}
+
+pub fn roy_floyd_warshall(graph: &[Vec<Edge>]) -> Option<Vec<Vec<i32>>> {
+    let n = graph.len();
+    let mut a_k: Vec<Vec<i32>> = vec![vec![i32::MAX; n]; n];
+
+    for i in 0..n {
+        for edge in &graph[i] {
+            a_k[i][edge.v] = edge.weight;
+        }
+        a_k[i][i] = 0;
+    }
+
+    for k in 0..n {
+        for i in 0..n {
+            for j in 0..n {
+                if a_k[i][k] != i32::MAX && a_k[k][j] != i32::MAX {
+                    let new_cost = a_k[i][k] + a_k[k][j];
+                    if a_k[i][j] > new_cost {
+                        a_k[i][j] = new_cost;
+                    }
+                }
+            }
+        }
+    }
+
+    for i in 0..n {
+        if a_k[i][i] < 0 {
+            return None;
+        }
+    }
+
+    for i in 0..n {
+        println!("{:?}", a_k[i]);
+    }
+
+    Some(a_k)
 }
