@@ -272,3 +272,74 @@ pub fn roy_floyd_warshall(graph: &[Vec<Edge>]) -> Option<Vec<Vec<i32>>> {
 
     Some(a_k)
 }
+
+fn dijkstra_i32(graph: &[Vec<Edge>], start: usize) -> (Vec<i32>, Vec<usize>) {
+    let n = graph.len();
+    let mut dist = vec![i32::MAX; n];
+    let mut parents: Vec<usize> = (0..n).collect();
+    dist[start] = 0;
+    
+    let mut priority_queue: std::collections::BinaryHeap<std::cmp::Reverse<(i32, usize)>> = std::collections::BinaryHeap::new();
+    priority_queue.push(std::cmp::Reverse((0, start)));
+
+    while let Some(std::cmp::Reverse((distance, index))) = priority_queue.pop() {
+        if distance > dist[index] {
+            continue;
+        }
+
+        for edge in &graph[index] {
+            let new_dist = dist[index].saturating_add(edge.weight);
+            if new_dist < dist[edge.v] {
+                dist[edge.v] = new_dist;
+                priority_queue.push(Reverse((dist[edge.v], edge.v)));
+                parents[edge.v] = index;
+            }
+        }
+    }
+
+    (dist, parents)
+}
+
+pub fn johnson(graph: &[Vec<Edge>]) -> Option<Vec<Vec<i32>>> {
+    let n = graph.len();
+
+    let mut graph_copy: Vec<Vec<Edge>> = graph.iter().cloned().collect();
+    let mut new_graph: Vec<Vec<Edge>> = graph.iter().cloned().collect();
+
+    let mut new_edges = Vec::new();
+    for i in 0..n {
+        new_edges.push(Edge::new(n, i, 0));
+    }
+    new_graph.push(new_edges);
+
+    if let Some((h, _)) = bellman_ford(&new_graph, n) {
+        for node in graph_copy.iter_mut() {
+            for edge in node.iter_mut() {
+                edge.weight = (edge.weight as isize + h[edge.u] - h[edge.v]) as i32;
+            }
+        }
+
+        let mut res: Vec<Vec<i32>> = Vec::new();
+        for i in 0..n {
+            let (dists_reweighted, _) = dijkstra_i32(&graph_copy, i);
+            
+            let final_dists: Vec<i32> = dists_reweighted
+                .iter()
+                .enumerate()
+                .map(|(j, &d_prime)| {
+                    if d_prime == i32::MAX {
+                        i32::MAX 
+                    } else {
+                        (d_prime as isize - h[i] + h[j]) as i32
+                    }
+                })
+                .collect();
+
+            res.push(final_dists);
+        }
+
+        Some(res)
+    } else {
+        None
+    }
+}

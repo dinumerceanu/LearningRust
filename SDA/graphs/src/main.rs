@@ -122,7 +122,8 @@ fn main() -> io::Result<()> {
     // println!("{:?}", tarjan_scc(&graph));
     // println!("{:?}", dijkstra(&graph, 0));
     // println!("{:?}", bellman_ford(&graph, 0));
-    println!("{:?}", roy_floyd_warshall(&graph));
+    // println!("{:?}", roy_floyd_warshall(&graph));
+    println!("{:?}", johnson(&graph));
 
     Ok(())
 }
