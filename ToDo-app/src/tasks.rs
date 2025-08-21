@@ -1,20 +1,63 @@
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDate;
-use std::{fs, future::Pending, io::{self, Write}};
+use std::{fs, io::{self, Write}};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Priority {
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq)]
 pub struct Task {
     task_name: String,
     deadline: NaiveDate,
     completed: bool,
+    priority: Priority
+}
+
+impl Ord for Task {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match (self.completed, other.completed) {
+            (true, false) => std::cmp::Ordering::Greater,
+            (false, true) => std::cmp::Ordering::Less,
+            _ => {
+                let self_prio = match self.priority {
+                    Priority::High => 3,
+                    Priority::Medium => 2,
+                    Priority::Low => 1,
+                };
+                let other_prio = match other.priority {
+                    Priority::High => 3,
+                    Priority::Medium => 2,
+                    Priority::Low => 1,
+                };
+                match self_prio.cmp(&other_prio) {
+                    std::cmp::Ordering::Equal => {
+                        self.deadline.cmp(&other.deadline)
+                    }
+                    ord => ord.reverse(),
+                }
+            }
+        }
+    }
+}
+
+impl PartialOrd for Task {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl Task {
-    pub fn new(task_name: String, deadline: NaiveDate) -> Self {
+    pub fn new(task_name: String, deadline: NaiveDate, priority: Priority) -> Self {
         Task {
             task_name,
             deadline,
-            completed: false
+            completed: false,
+            priority
         }
     }
 
@@ -78,12 +121,17 @@ impl TODOList {
             }
         }
 
+        if all {
+            tasks.sort();
+        }
+
         for task in tasks {
             println!(
-                "[{}] {} (deadline: {})",
+                "[{}] {} (deadline: {}, priority: {:?})",
                 if task.completed { "X" } else { " " },
                 task.task_name,
-                task.deadline
+                task.deadline,
+                task.priority
             );
         }
     }

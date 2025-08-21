@@ -13,8 +13,13 @@ pub enum Commands {
     /// Adds a new task to the list
     Add {
         task_name: String,
+
         #[arg(value_parser = parse_date)]
         deadline: NaiveDate,
+
+        /// Set priority: low, medium, high
+        #[arg(long = "set-priority", value_parser = ["low", "medium", "high"], default_value = "low")]
+        priority: String,
     },
     /// Deletes a task from list
     Delete {
@@ -54,7 +59,7 @@ pub enum Commands {
         #[arg(long, value_parser = ["deadline", "name", "status"])]
         sort: Option<String>,
 
-        #[arg(long, short, help = "Prints all tasks")]
+        #[arg(long, short, conflicts_with = "pending", conflicts_with = "completed", conflicts_with = "sort", help = "Prints all tasks")]
         all: bool
     },
     /// Saves the list to a json object locally

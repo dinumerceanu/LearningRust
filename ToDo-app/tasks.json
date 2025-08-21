@@ -1,27 +1,32 @@
 [
   {
+    "task_name": "1",
+    "deadline": "2025-01-01",
+    "completed": false,
+    "priority": "Low"
+  },
+  {
     "task_name": "2",
-    "deadline": "2030-01-01",
-    "completed": true
+    "deadline": "2026-01-01",
+    "completed": false,
+    "priority": "Medium"
   },
   {
     "task_name": "3",
-    "deadline": "2025-01-01",
-    "completed": true
-  },
-  {
-    "task_name": "1",
-    "deadline": "2025-05-02",
-    "completed": false
+    "deadline": "2025-02-01",
+    "completed": false,
+    "priority": "Medium"
   },
   {
     "task_name": "4",
-    "deadline": "2050-12-12",
-    "completed": false
+    "deadline": "2024-02-01",
+    "completed": true,
+    "priority": "High"
   },
   {
     "task_name": "5",
-    "deadline": "2026-01-01",
-    "completed": false
+    "deadline": "2023-01-02",
+    "completed": false,
+    "priority": "Low"
   }
 ]

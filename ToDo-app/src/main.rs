@@ -32,8 +32,15 @@ fn main() {
 
             match Args::try_parse_from(&argv) {
                 Ok(cli) => match cli.cmd {
-                    Commands::Add { task_name, deadline } => 
-                        list.add(Task::new(task_name, deadline)),
+                    Commands::Add { task_name, deadline, priority } => {
+                        let priority = match priority.as_str() {
+                            "low" => Priority::Low,
+                            "medium" => Priority::Medium,
+                            "high" => Priority::High,
+                            _ => Priority::Low
+                        };
+                        list.add(Task::new(task_name, deadline, priority));
+                    },
                     Commands::Print {completed, pending, sort, all} => {
                         list.print(completed, pending, sort, all);
                     },
