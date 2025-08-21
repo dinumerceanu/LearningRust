@@ -2,8 +2,7 @@ use serde::{Deserialize, Serialize};
 use chrono::NaiveDate;
 use std::{fs, io::{self, Write}};
 
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Copy)]
 pub enum Priority {
     Low,
     Medium,
@@ -88,6 +87,13 @@ impl TODOList {
 
     pub fn add(&mut self, task: Task) {
         if !self.list.contains(&task) {
+
+            if task.deadline < chrono::Local::now().date_naive() {
+                println!("Cannot add task '{}' with a past deadline.", task.task_name);
+                return;
+            } 
+
+            println!("Added task: {} (deadline: {}, priority: {:?})", task.task_name, task.deadline, task.priority);
             self.list.push(task);
         } else {
             println!("Task already exists");
@@ -117,12 +123,17 @@ impl TODOList {
                 "deadline" => tasks.sort_by_key(|t| t.deadline),
                 "name"     => tasks.sort_by_key(|t| t.task_name.clone()),
                 "status"   => tasks.sort_by_key(|t| t.completed),
+                "priority" => tasks.sort_by_key(|t| std::cmp::Reverse(t.priority.clone())),
                 _ => {}
             }
         }
 
         if all {
             tasks.sort();
+        }
+
+        if tasks.is_empty() {
+            println!("No tasks found");
         }
 
         for task in tasks {
@@ -253,6 +264,29 @@ impl TODOList {
             }
         } else {
             TODOList::new()
+        }
+    }
+
+    pub fn edit(&mut self,  task_name: String, new_name: Option<String>, new_deadline: Option<NaiveDate>, new_priority: Option<String>) {
+        if let Some(found_task) = self.list.iter_mut().find(|x| x.task_name.eq(&task_name)) {
+            if let Some(name) = new_name {
+                found_task.task_name = name;
+            }
+
+            if let Some(ddl) = new_deadline {
+                found_task.deadline = ddl;
+            }
+
+            if let Some(prio) = new_priority {
+                match prio.to_lowercase().as_str() {
+                    "low" => found_task.priority = Priority::Low,
+                    "medium" => found_task.priority = Priority::Medium,
+                    "high" => found_task.priority = Priority::High,
+                    _ => println!("Invalid priority, use: Low, Medium, High"),
+                }
+            }
+        } else {
+            println!("Task '{}' not found", task_name);
         }
     }
 }

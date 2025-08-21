@@ -41,6 +41,9 @@ fn main() {
                         };
                         list.add(Task::new(task_name, deadline, priority));
                     },
+                    Commands::Edit { task_name, new_name, new_deadline, new_priority } => {
+                        list.edit(task_name, new_name, new_deadline, new_priority);
+                    },
                     Commands::Print {completed, pending, sort, all} => {
                         list.print(completed, pending, sort, all);
                     },

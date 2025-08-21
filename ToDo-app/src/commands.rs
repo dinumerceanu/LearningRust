@@ -18,8 +18,21 @@ pub enum Commands {
         deadline: NaiveDate,
 
         /// Set priority: low, medium, high
-        #[arg(long = "set-priority", value_parser = ["low", "medium", "high"], default_value = "low")]
+        #[arg(long = "set-priority", value_enum, default_value = "low")]
         priority: String,
+    },
+    /// Edits an existing task
+    Edit {
+        task_name: String,
+
+        #[arg(long)]
+        new_name: Option<String>,
+
+        #[arg(long, value_parser = parse_date)]
+        new_deadline: Option<NaiveDate>,
+
+        #[arg(long)]
+        new_priority: Option<String>
     },
     /// Deletes a task from list
     Delete {
@@ -55,8 +68,8 @@ pub enum Commands {
         #[arg(long, short, help = "Prints only uncompleted tasks")]
         pending: bool,
 
-        /// Sorting criteria: "deadline", "name", "status"
-        #[arg(long, value_parser = ["deadline", "name", "status"])]
+        /// Sorting criteria: "deadline", "name", "status", "priority"
+        #[arg(long, value_parser = ["deadline", "name", "status", "priority"])]
         sort: Option<String>,
 
         #[arg(long, short, conflicts_with = "pending", conflicts_with = "completed", conflicts_with = "sort", help = "Prints all tasks")]
