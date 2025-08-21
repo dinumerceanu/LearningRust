@@ -23,6 +23,12 @@ impl Task {
     }
 }
 
+impl PartialEq for Task {
+    fn eq(&self, other: &Self) -> bool {
+        self.task_name == other.task_name
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TODOList {
     list: Vec<Task>
@@ -34,7 +40,11 @@ impl TODOList {
     }
 
     pub fn add(&mut self, task: Task) {
-        self.list.push(task);
+        if !self.list.contains(&task) {
+            self.list.push(task);
+        } else {
+            println!("Task already exists");
+        }
     }
 
     pub fn print(&mut self) {
@@ -53,9 +63,16 @@ impl TODOList {
     pub fn mark_complete(&mut self, task_name: String) {
         for task in &mut self.list {
             if task.task_name.eq(&task_name) {
-                task.mark_complete();
+                if !task.completed {
+                    task.mark_complete();   
+                } else {
+                    println!("Task is already completed");
+                }
+                return;
             }
         }
+
+        println!("Task is not in list");
     }
 
     pub fn save(&self, path: &str) {
