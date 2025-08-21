@@ -18,13 +18,24 @@ pub enum Commands {
     },
     /// Deletes a task from list
     Delete {
-        task_name: String,
-        #[arg(long, short, help = "Delete without confirmation")]
-        force: bool
+        task_name: Option<String>,
+
+        #[arg(long, short, help = "Deletes without confirmation")]
+        force: bool,
+
+        #[arg(long, short, help = "Deletes all tasks")]
+        all: bool
     },
     /// Marks a task as completed
     Mark {
-        task_name: String,
+        /// Optional task name (ignored if --all is set)
+        task_name: Option<String>,
+
+        #[arg(long, short, help = "Marks a task uncompleted")]
+        uncomplete: bool,
+
+        #[arg(long, short, help = "Marks all tasks completed")]
+        all: bool
     },
     /// Prints the list
     Print,

@@ -35,8 +35,20 @@ fn main() {
                     Commands::Add { task_name, deadline } => 
                         list.add(Task::new(task_name, deadline)),
                     Commands::Print => list.print(),
-                    Commands::Delete { task_name, force } => list.delete(task_name, force),
-                    Commands::Mark { task_name } => list.mark_complete(task_name),
+                    Commands::Delete { task_name, force , all} => {
+                        if all {
+                            list.delete_all(force);
+                        } else if let Some(name) = task_name {
+                            list.delete(name, force);
+                        }
+                    }
+                    Commands::Mark { task_name , uncomplete, all} => {
+                        if all {
+                            list.mark_all(uncomplete);
+                        } else if let Some(name) = task_name {
+                            list.mark(name, uncomplete);
+                        }
+                    }
                     Commands::Save => list.save("tasks.json"),
                     Commands::Exit => {list.save("tasks.json"); break;}
                 },

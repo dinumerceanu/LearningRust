@@ -1,4 +1,4 @@
-use serde::{de, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use chrono::NaiveDate;
 use std::{fs, io::{self, Write}};
 
@@ -20,6 +20,10 @@ impl Task {
 
     fn mark_complete(&mut self) {
         self.completed = true;
+    }
+
+    fn mark_uncomplete(&mut self) {
+        self.completed = false;
     }
 }
 
@@ -76,19 +80,57 @@ impl TODOList {
         }
     }
 
-    pub fn mark_complete(&mut self, task_name: String) {
+    pub fn delete_all(&mut self, force: bool) {
+        if !force {
+            print!("Are you sure you want to delete all tasks? [y/n]: ");
+            io::stdout().flush().unwrap();
+
+            let mut decision = String::new();
+            if io::stdin().read_line(&mut decision).is_ok() {
+                match decision.trim() {
+                    "y" | "Y" => {
+                        self.list = Vec::new();
+                        println!("All tasks deleted.");
+                    }
+                    "n" | "N" => println!("Deletion cancelled."),
+                    _ => println!("Invalid input, tasks not deleted."),
+                }
+            }
+        } else {
+            self.list = Vec::new();
+            println!("All tasks deleted.");
+        }
+    }
+
+    pub fn mark(&mut self, task_name: String, uncomplete: bool) {
         for task in &mut self.list {
             if task.task_name.eq(&task_name) {
-                if !task.completed {
-                    task.mark_complete();   
+                if !task.completed && !uncomplete{
+                    task.mark_complete();  
+                    println!("Task {} was marked completed.", task_name);
+                } else if task.completed && !uncomplete {
+                    println!("Task is already completed.");
+                } else if task.completed && uncomplete {
+                    task.mark_uncomplete();
+                    println!("Task {} was marked uncompleted.", task_name);
                 } else {
-                    println!("Task is already completed");
+                    println!("Task is not marked as completed.");
                 }
                 return;
             }
         }
 
         println!("Task is not in list");
+    }
+
+    pub fn mark_all(&mut self, uncomplete: bool) {
+        for task in &mut self.list {
+            if !task.completed && !uncomplete {
+                task.completed = true;
+            } else if task.completed && uncomplete {
+                task.completed = false;
+            }
+        }
     }
 
     pub fn save(&self, path: &str) {
