@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
+use serde::{de, Deserialize, Serialize};
 use chrono::NaiveDate;
-use std::fs;
+use std::{fs, io::{self, Write}};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Task {
@@ -51,12 +51,28 @@ impl TODOList {
         println!("{:?}", self.list);
     }
 
-    pub fn remove(&mut self, task_name: String) {
-        let n = self.list.len();
-        self.list.retain(|task| task.task_name != task_name);
+    pub fn delete(&mut self, task_name: String, force: bool) {
+        if let Some(pos) = self.list.iter().position(|t| t.task_name == task_name) {
+            if !force {
+                print!("Are you sure you want to delete task: {}?[y/n]: ", task_name);
+                io::stdout().flush().unwrap();
 
-        if n == self.list.len() {
-            println!("Task is not in list");
+                let mut decision = String::new();
+                if io::stdin().read_line(&mut decision).is_ok() {
+                    match decision.trim() {
+                        "y" | "Y" => {
+                            self.list.remove(pos);
+                            println!("Task deleted.");
+                        }
+                        "n" | "N" => println!("Deletion cancelled."),
+                        _ => println!("Invalid input, task not deleted."),
+                    }
+                }
+            } else {
+                self.list.remove(pos);
+            }
+        } else {
+            println!("Task is not in list.");
         }
     }
 

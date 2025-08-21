@@ -19,6 +19,8 @@ pub enum Commands {
     /// Deletes a task from list
     Delete {
         task_name: String,
+        #[arg(long, short, help = "Delete without confirmation")]
+        force: bool
     },
     /// Marks a task as completed
     Mark {
