@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDate;
-use std::{fs, io::{self, Write}};
+use std::{fs, future::Pending, io::{self, Write}};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
     task_name: String,
     deadline: NaiveDate,
@@ -51,8 +51,41 @@ impl TODOList {
         }
     }
 
-    pub fn print(&mut self) {
-        println!("{:?}", self.list);
+    pub fn print(&self, completed: bool, pending: bool, sort: Option<String>, all: bool) {
+        let mut tasks: Vec<Task> = self
+            .list
+            .iter()
+            .cloned()
+            .filter(|t| {
+                if all {
+                    true
+                } else if completed {
+                    t.completed
+                } else if pending {
+                    !t.completed
+                } else {
+                    true
+                }
+            })
+            .collect();
+
+        if let Some(sort_key) = sort {
+            match sort_key.as_str() {
+                "deadline" => tasks.sort_by_key(|t| t.deadline),
+                "name"     => tasks.sort_by_key(|t| t.task_name.clone()),
+                "status"   => tasks.sort_by_key(|t| t.completed),
+                _ => {}
+            }
+        }
+
+        for task in tasks {
+            println!(
+                "[{}] {} (deadline: {})",
+                if task.completed { "X" } else { " " },
+                task.task_name,
+                task.deadline
+            );
+        }
     }
 
     pub fn delete(&mut self, task_name: String, force: bool) {
@@ -124,12 +157,23 @@ impl TODOList {
     }
 
     pub fn mark_all(&mut self, uncomplete: bool) {
+        if self.list.is_empty() {
+            println!("No tasks to be marked.");
+            return;
+        }
+        
         for task in &mut self.list {
             if !task.completed && !uncomplete {
                 task.completed = true;
             } else if task.completed && uncomplete {
                 task.completed = false;
             }
+        }
+
+        if uncomplete {
+            println!("All tasks marked uncompleted.");
+        } else {
+            println!("All tasks marked completed.");
         }
     }
 

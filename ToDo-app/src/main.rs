@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser};
 use std::{io::{self, Write}, vec};
 
 mod tasks;
@@ -34,7 +34,9 @@ fn main() {
                 Ok(cli) => match cli.cmd {
                     Commands::Add { task_name, deadline } => 
                         list.add(Task::new(task_name, deadline)),
-                    Commands::Print => list.print(),
+                    Commands::Print {completed, pending, sort, all} => {
+                        list.print(completed, pending, sort, all);
+                    },
                     Commands::Delete { task_name, force , all} => {
                         if all {
                             list.delete_all(force);

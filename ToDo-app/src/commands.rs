@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ArgGroup};
 use chrono::NaiveDate;
 
 #[derive(Parser)]
@@ -38,7 +38,25 @@ pub enum Commands {
         all: bool
     },
     /// Prints the list
-    Print,
+    #[command(group(
+        ArgGroup::new("print_mode")
+            .args(&["completed", "pending", "sort", "all"])
+            .required(true).multiple(true)
+    ))]
+    Print {
+        #[arg(long, short, help = "Prints only completed tasks")]
+        completed: bool,
+
+        #[arg(long, short, help = "Prints only uncompleted tasks")]
+        pending: bool,
+
+        /// Sorting criteria: "deadline", "name", "status"
+        #[arg(long, value_parser = ["deadline", "name", "status"])]
+        sort: Option<String>,
+
+        #[arg(long, short, help = "Prints all tasks")]
+        all: bool
+    },
     /// Saves the list to a json object locally
     Save,
     /// Exists the program
