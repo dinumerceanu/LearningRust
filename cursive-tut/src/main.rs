@@ -1,5 +1,5 @@
-use cursive::views::TextView;
-use cursive::views::Dialog;
+use cursive::view::Nameable;
+use cursive::views::{Dialog, TextView, Checkbox, LinearLayout};
 use cursive::{Cursive, CursiveExt};
 
 fn main() {
@@ -20,22 +20,65 @@ fn main() {
     // .button("Not sure...", |s| s.quit())
     // );
 
+    // siv.add_layer(
+    //     Dialog::text("Have you used ICQ before?")  
+    //     .title("retro test")
+    //     .button("yes", yes)
+    //     .button("no", no)
+    // );
+
+
+    let survey = LinearLayout::vertical()
+        .child(
+            LinearLayout::horizontal()
+                .child(Checkbox::new().with_name("rust"))
+                .child(TextView::new("Rust")),
+        )
+        .child(
+            LinearLayout::horizontal()
+                .child(Checkbox::new().with_name("go"))
+                .child(TextView::new("Go")),
+        )
+        .child(
+            LinearLayout::horizontal()
+                .child(Checkbox::new().with_name("python"))
+                .child(TextView::new("Python")),
+        )
+        .child(
+            LinearLayout::horizontal()
+                .child(Checkbox::new().with_name("cpp"))
+                .child(TextView::new("C++")),
+        );
+
     siv.add_layer(
-        Dialog::text("Have you used ICQ before?")  
-        .title("retro test")
-        .button("yes", yes)
-        .button("no", no)
+        Dialog::around(survey)
+            .title("Ce limbaje îți plac?")
+            .button("Trimite", |s| {
+                let rust = s.call_on_name("rust", |v: &mut Checkbox| v.is_checked()).unwrap();
+                let go = s.call_on_name("go", |v: &mut Checkbox| v.is_checked()).unwrap();
+                let python = s.call_on_name("python", |v: &mut Checkbox| v.is_checked()).unwrap();
+                let cpp = s.call_on_name("cpp", |v: &mut Checkbox| v.is_checked()).unwrap();
+
+                let rez = format!(
+                    "Rezultate:\nRust: {}\nGo: {}\nPython: {}\nC++: {}",
+                    rust, go, python, cpp
+                );
+
+                s.pop_layer();
+                s.add_layer(TextView::new(rez));
+            })
+            .button("Renunță", |s| s.quit()),
     );
 
     siv.run();
 }
 
-fn yes(s: &mut Cursive) {
-    s.pop_layer();
-    s.add_layer(TextView::new("Sweet!"));
-}
+// fn yes(s: &mut Cursive) {
+//     s.pop_layer();
+//     s.add_layer(TextView::new("Sweet!"));
+// }
 
-fn no(s: &mut Cursive) {
-    s.pop_layer();
-    s.add_layer(TextView::new("Not Sweet!"));
-}
+// fn no(s: &mut Cursive) {
+//     s.pop_layer();
+//     s.add_layer(TextView::new("Not Sweet!"));
+// }
