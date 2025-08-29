@@ -7,6 +7,9 @@ use scoped_threads::*;
 mod mutex;
 use mutex::*;
 
+mod my_channels;
+use my_channels::*;
+
 fn main() {
     // main_thread();
 
@@ -16,5 +19,7 @@ fn main() {
 
     // scoped_threads_demo();
 
-    test_mutex();
+    // test_mutex();
+
+    test_channels();
 }
