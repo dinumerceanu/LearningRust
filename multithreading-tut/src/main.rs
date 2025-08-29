@@ -4,6 +4,9 @@ use my_threads::*;
 mod scoped_threads;
 use scoped_threads::*;
 
+mod mutex;
+use mutex::*;
+
 fn main() {
     // main_thread();
 
@@ -11,5 +14,7 @@ fn main() {
 
     // named_threads();
 
-    scoped_threads_demo();
+    // scoped_threads_demo();
+
+    test_mutex();
 }
