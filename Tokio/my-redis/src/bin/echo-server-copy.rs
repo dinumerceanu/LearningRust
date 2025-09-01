@@ -8,7 +8,7 @@ async fn main() -> io::Result<()> {
     let listener = TcpListener::bind("127.0.0.1:6142").await?;
 
     loop {
-        let (mut socket, _) = listener.accept().await?;
+        let (socket, _) = listener.accept().await?;
 
         tokio::spawn(async move {
             let (mut rd, mut wr) = io::split(socket);
