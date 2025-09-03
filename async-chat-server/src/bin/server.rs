@@ -25,6 +25,7 @@ async fn main() -> io::Result<()> {
                         let s = String::from_utf8_lossy(&buf[..n]);
                         let trimmed_s = s.trim();
                         println!("Received from {:?}: {:?}", socket.peer_addr(), trimmed_s);
+                        socket.write(&buf[..n]).await;
                     },
                     Err(e) => {
                         eprintln!("Error readinng from {:?}: {}", socket.peer_addr(), e);

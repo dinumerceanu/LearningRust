@@ -47,7 +47,10 @@ async fn main() -> io::Result<()> {
                     break;
                 },
                 Ok(n) => {
-                    println!("Received from server: {:?}", &buf[..n]);
+                    let s = String::from_utf8_lossy(&buf[..n]);
+                    println!("Received from server: {:?}", s);
+                    print!("async-chat> ");
+                    std::io::stdout().flush().unwrap();
                 },
                 Err(e) => {
                     eprintln!("Error reading from server: {e}");
@@ -62,5 +65,5 @@ async fn main() -> io::Result<()> {
         _ = server_reader_future => {},
     }
 
-    Ok(())
+    std::process::exit(0);
 }
