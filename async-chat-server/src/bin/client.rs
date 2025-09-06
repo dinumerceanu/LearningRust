@@ -43,12 +43,17 @@ async fn main() -> io::Result<()> {
 
             match res {
                 Ok(0) => {
+                    print!("\x1B[2K\x1B[1G");
+                    std::io::stdout().flush().unwrap();
                     println!("Connection terminated by the server");
                     break;
                 },
                 Ok(n) => {
                     let s = String::from_utf8_lossy(&buf[..n]);
-                    println!("Received from server: {:?}", s);
+                    let trimmed_s = s.trim();
+                    print!("\x1B[2K\x1B[1G");
+                    std::io::stdout().flush().unwrap();
+                    println!("Received from server: {:?}", trimmed_s);
                     print!("async-chat> ");
                     std::io::stdout().flush().unwrap();
                 },
